@@ -39,7 +39,7 @@ export class ViewStudentComponent {
     private readonly route:ActivatedRoute,
     private readonly genderService:GenderService,
     private snackbar:MatSnackBar){}
-
+//
   ngOnInit():void{
 
     this.route.paramMap.subscribe(
