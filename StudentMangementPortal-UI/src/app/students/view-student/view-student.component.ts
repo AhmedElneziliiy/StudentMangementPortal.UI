@@ -36,6 +36,7 @@ export class ViewStudentComponent {
 
   isNewStudent=false;
   header='';
+  displayProfileImageUrl='';
   genderList:Gender[]=[];
 
   constructor(private readonly studentService:StudentService,
@@ -55,8 +56,10 @@ export class ViewStudentComponent {
           {//adding new student
             this.isNewStudent=true;
             this.header='Add new Student';
+            this.setImage();
           }else
-          {//edit existing student
+          {
+            //edit existing student
             this.isNewStudent=false;
             this.header='Edit Student';
 
@@ -64,6 +67,10 @@ export class ViewStudentComponent {
             .subscribe(
               (successResponse)=>{
                this.student=successResponse;
+               this.setImage();
+              },
+              (errorResponse)=>{
+                this.setImage();
               }
             );
           }
@@ -122,5 +129,35 @@ export class ViewStudentComponent {
 
       }
     );
+  }
+
+
+  uploadImage(event:any):void{
+    if(this.studentId){
+      const file:File=event.target.files[0];
+      this.studentService.uploadImage(this.student.id,file).subscribe(
+
+        (successResponse)=>{
+          this.student.profileImageUrl=successResponse;
+          this.setImage();
+
+          this.snackbar.open( 'Profile Image Updated',undefined, {
+            duration:2000
+          });
+        },
+        (errorResponse)=>{
+
+        }
+      );
+    }
+  }
+
+  private setImage():void{
+    if(this.student.profileImageUrl){
+      this.displayProfileImageUrl = this.studentService.getImagePath( this.student.profileImageUrl);
+    }else{
+      //display default Image
+      this.displayProfileImageUrl='/assets/user.png';
+    }
   }
 }
