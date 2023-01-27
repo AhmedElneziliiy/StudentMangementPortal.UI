@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Gender } from 'src/app/models/ui-models/gender.model';
@@ -38,6 +39,7 @@ export class ViewStudentComponent {
   header='';
   displayProfileImageUrl='';
   genderList:Gender[]=[];
+  @ViewChild('studentDetailsForm')studentDetailsForm?:NgForm;
 
   constructor(private readonly studentService:StudentService,
     private readonly route:ActivatedRoute,
@@ -45,48 +47,44 @@ export class ViewStudentComponent {
     private snackbar:MatSnackBar,
     private router:Router){}
 //
-  ngOnInit():void{
+ngOnInit(): void {
+  this.route.paramMap.subscribe(
+    (params) => {
+      this.studentId = params.get('id');
 
-    this.route.paramMap.subscribe(
-      (params)=>{
-        this.studentId=params.get('id');
-        if(this.studentId){
-          //if the route contain add keyword
-          if(this.studentId.toLowerCase()==='Add'.toLowerCase())
-          {//adding new student
-            this.isNewStudent=true;
-            this.header='Add new Student';
-            this.setImage();
-          }else
-          {
-            //edit existing student
-            this.isNewStudent=false;
-            this.header='Edit Student';
-
-            this.studentService.getStudent(this.studentId)
+      if (this.studentId) {
+        if (this.studentId.toLowerCase() === 'Add'.toLowerCase()) {
+          // -> new Student Functionality
+          this.isNewStudent = true;
+          this.header = 'Add New Student';
+          this.setImage();
+        } else {
+          // -> Existing Student Functionality
+          this.isNewStudent = false;
+          this.header = 'Edit Student';
+          this.studentService.getStudent(this.studentId)
             .subscribe(
-              (successResponse)=>{
-               this.student=successResponse;
-               this.setImage();
+              (successResponse) => {
+                this.student = successResponse;
+                this.setImage();
               },
-              (errorResponse)=>{
+              (errorResponse) => {
                 this.setImage();
               }
             );
-          }
+        }
 
-          this.genderService.getGenderList()
+        this.genderService.getGenderList()
           .subscribe(
-            (successResponse)=>{
-              this.genderList=successResponse;
+            (successResponse) => {
+              this.genderList = successResponse;
             }
           );
-        }
       }
-    );
+    }
+  );
+}
 
-
-  }
   onUpdate():void{
     //call studentService
     this.studentService.updateStudent(this.student.id,this.student)
@@ -98,7 +96,7 @@ export class ViewStudentComponent {
 
       },
       (errorResponse)=>{
-
+        console.log(errorResponse);
       }
     );
   }
@@ -117,18 +115,27 @@ export class ViewStudentComponent {
       }
     );
   }
-  onAdd():void{
-    this.studentService.addStudent(this.student).subscribe(
-      (successResponse)=>{
-        this.snackbar.open('Student Addes successfully',undefined,{duration:2000});
-        setTimeout(()=>{
-          this.router.navigateByUrl(`students/${successResponse.id}`);
-        },2000);
-      },
-      (errorResponse)=>{
+  onAdd(): void {
+    if (this.studentDetailsForm?.form.valid) {
+      // Submit form date to api
+      this.studentService.addStudent(this.student)
+        .subscribe(
+          (successResponse) => {
+            this.snackbar.open('Student added successfully', undefined, {
+              duration: 2000
+            });
 
-      }
-    );
+            setTimeout(() => {
+              this.router.navigateByUrl(`students/${successResponse.id}`);
+            }, 2000);
+
+          },
+          (errorResponse) => {
+            // Log
+            console.log(errorResponse);
+          }
+        );
+    }
   }
 
 
