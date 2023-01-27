@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { Student } from '../models/api-models/student.model';
 import { UpdateStudentRequest } from '../models/api-models/update-student-request.model';
 import { AddStudentRequest } from '../models/api-models/add-student-request.model';
+import { environment } from 'environments/environment';
 
 
 
@@ -11,7 +12,8 @@ import { AddStudentRequest } from '../models/api-models/add-student-request.mode
   providedIn: 'root'
 })
 export class StudentService {
-  private baseApiUrl="https://localhost:44307";
+  private baseApiUrl=environment.baseApiUrl;
+
   constructor(private httpClient :HttpClient) { }
 
   getStudents():Observable<Student[]>{

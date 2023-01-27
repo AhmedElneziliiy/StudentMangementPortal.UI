@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
 import { Gender } from '../models/ui-models/gender.model';
 
@@ -7,7 +8,8 @@ import { Gender } from '../models/ui-models/gender.model';
   providedIn: 'root'
 })
 export class GenderService {
-  private baseApiUrl="https://localhost:44307";
+  private baseApiUrl=environment.baseApiUrl;
+
   constructor(private httpClient :HttpClient) { }
 
   getGenderList():Observable<Gender[]>{
